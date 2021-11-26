@@ -25,6 +25,7 @@ summary(mod1)
 
 drop_mod1 <- drop1(mod1, test = "F")        #Backward selection using drop
 step_mod1 <- step(mod1)                     #Backward selection using step
+step_mod1B <- step(mod1, k = log(4110))     #Backward selection using step using BICsummary
 
 par(mfrow = c(2,2))
 plot(step_mod1)    #plots the graphs to check model assumptions, Q-Q plots are odd at the end tail, residuals has a weird shape
@@ -33,34 +34,44 @@ plot(step_mod1)    #plots the graphs to check model assumptions, Q-Q plots are o
 
 mod2 <- lm(nbv_ratio ~ . -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_beech)
 summary(mod2) # -Last year's variables
-step_mod2 <- step(mod2)  
+step_mod2 <- step(mod2)
+step_mod2B <- step(mod2, k = log(4110))
 
 mod3 <- lm(nbv_ratio ~ . -spei_24_oct, data = data_beech)
 summary(mod3) # -spei24
 step_mod3 <- step(mod3)
+step_mod3B <- step(mod3, k = log(4110))
 
 mod4 <- lm(nbv_ratio ~ . -spei_24_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_beech)
 summary(mod4) # -spei24 -Last year's variables
 step_mod4 <- step(mod4)
+step_mod4B <- step(mod4, k = log(4110))
 
 mod5 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y -prec_y -et0_y, data = data_beech)
 summary(mod5)  # -spei12 -This year's variables
 step_mod5 <- step(mod5)
+step_mod5B <- step(mod5, k = log(4110))
 
 mod6 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_beech)
 summary(mod6)  # -spei12 -Last year's variables
 step_mod6 <- step(mod6)
+step_mod6B <- step(mod6, k = log(4110))
 
 mod7 <- lm(nbv_ratio ~ . -spei_12_oct, data = data_beech)
 summary(mod7)  # -spei12
 step_mod7 <- step(mod7)
+step_mod7B <- step(mod7, k = log(4110))
 
 mod8 <- lm(nbv_ratio ~ . -spei_24_oct -globrad_y -prec_y -et0_y, data = data_beech)
-summary(mod8)
+summary(mod8)  # -spei24 -this year's variables
 step_mod8 <- step(mod8)
+step_mod8B <- step(mod8, k = log(4110))
 #Step mod 1 and 3 have the best fit by far.
 
-
+mod9 <- lm(nbv_ratio ~ . -prec_y_lag1, data = data_beech)
+summary(mod9)  # -last year's precipitation
+step_mod9 <- step(mod9)
+step_mod9B <- step(mod9, k = log(4110))
 
 lm_site <- lm(nbv_ratio ~ geol_no + soil_no + soil_ty_no + humus_no + water_no + nutri_no + slope_dir + skel_no + depth_no + alt_m + slope_deg, data = data_beech)
 summary(lm_site)  #Model using only site variables
