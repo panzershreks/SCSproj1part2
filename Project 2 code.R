@@ -32,27 +32,27 @@ plot(step_mod1)    #plots the graphs to check model assumptions, Q-Q plots are o
 #Could imply that this model does not fit very well
 
 mod2 <- lm(nbv_ratio ~ . -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_omit_beech)
-summary(mod2)
-step_mod2 <- step(mod2)
+summary(mod2) # -Last year's variables
+step_mod2 <- step(mod2)  
 
 mod3 <- lm(nbv_ratio ~ . -spei_24_oct, data = data_omit_beech)
-summary(mod3)
+summary(mod3) # -spei24
 step_mod3 <- step(mod3)
 
 mod4 <- lm(nbv_ratio ~ . -spei_24_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_omit_beech)
-summary(mod4)
+summary(mod4) # -spei24 -Last year's variables
 step_mod4 <- step(mod4)
 
 mod5 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y -prec_y -et0_y, data = data_omit_beech)
-summary(mod5)
+summary(mod5)  # -spei12 -This year's variables
 step_mod5 <- step(mod5)
 
 mod6 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_omit_beech)
-summary(mod6)
+summary(mod6)  # -spei12 -Last year's variables
 step_mod6 <- step(mod6)
 
 mod7 <- lm(nbv_ratio ~ . -spei_12_oct, data = data_omit_beech)
-summary(mod7)
+summary(mod7)  # -This year's variables
 step_mod7 <- step(mod7)
 
 #Step mod 1 and 3 have the best fit by far.
