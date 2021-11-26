@@ -13,14 +13,14 @@ data_omit <- data_omit[-c(1)] #removes id
 data_omit <- data_omit[-c(28)] #removing the s_veg column
 data_omit <- na.omit(data_omit) #removing all the NA values
 summary(data_omit)
-data_omit_beech <- filter(data_omit, tree_sp_eu == "Rbu") 
-data_omit_beech <- data_omit_beech[-c(4)]
-data_omit_spruce <- filter(data_omit, tree_sp_eu == "Gfi")
-data_omit_spruce <- data_omit_spruce[-c(4)]
+data_omit_beech <- filter(data_omit, tree_sp_eu == "Rbu") #makes dataset for beech trees
+data_beech <- data_omit_beech[-c(4)]
+data_omit_spruce <- filter(data_omit, tree_sp_eu == "Gfi") #makes dataset for spruce trees
+data_spruce <- data_omit_spruce[-c(4)]
 
 
 # Analysis of data for Beech trees
-mod1 <- lm(nbv_ratio ~ ., data = data_omit_beech) #Model with all variables
+mod1 <- lm(nbv_ratio ~ ., data = data_beech) #Model with all variables
 summary(mod1)
 
 drop_mod1 <- drop1(mod1, test = "F")        #Backward selection using drop
@@ -31,35 +31,38 @@ plot(step_mod1)    #plots the graphs to check model assumptions, Q-Q plots are o
 #there are two points that have a leverage of 1, could be outliers (1590, 2422)
 #Could imply that this model does not fit very well
 
-mod2 <- lm(nbv_ratio ~ . -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_omit_beech)
+mod2 <- lm(nbv_ratio ~ . -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_beech)
 summary(mod2) # -Last year's variables
 step_mod2 <- step(mod2)  
 
-mod3 <- lm(nbv_ratio ~ . -spei_24_oct, data = data_omit_beech)
+mod3 <- lm(nbv_ratio ~ . -spei_24_oct, data = data_beech)
 summary(mod3) # -spei24
 step_mod3 <- step(mod3)
 
-mod4 <- lm(nbv_ratio ~ . -spei_24_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_omit_beech)
+mod4 <- lm(nbv_ratio ~ . -spei_24_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_beech)
 summary(mod4) # -spei24 -Last year's variables
 step_mod4 <- step(mod4)
 
-mod5 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y -prec_y -et0_y, data = data_omit_beech)
+mod5 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y -prec_y -et0_y, data = data_beech)
 summary(mod5)  # -spei12 -This year's variables
 step_mod5 <- step(mod5)
 
-mod6 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_omit_beech)
+mod6 <- lm(nbv_ratio ~ . -spei_12_oct -globrad_y_lag1 -prec_y_lag1 -et0_y_lag1, data = data_beech)
 summary(mod6)  # -spei12 -Last year's variables
 step_mod6 <- step(mod6)
 
-mod7 <- lm(nbv_ratio ~ . -spei_12_oct, data = data_omit_beech)
-summary(mod7)  # -This year's variables
+mod7 <- lm(nbv_ratio ~ . -spei_12_oct, data = data_beech)
+summary(mod7)  # -spei12
 step_mod7 <- step(mod7)
 
+mod8 <- lm(nbv_ratio ~ . -spei_24_oct -globrad_y -prec_y -et0_y, data = data_beech)
+summary(mod8)
+step_mod8 <- step(mod8)
 #Step mod 1 and 3 have the best fit by far.
 
 
 
-lm_site <- lm(nbv_ratio ~ geol_no + soil_no + soil_ty_no + humus_no + water_no + nutri_no + slope_dir + skel_no + depth_no + alt_m + slope_deg, data = data_omit_beech)
+lm_site <- lm(nbv_ratio ~ geol_no + soil_no + soil_ty_no + humus_no + water_no + nutri_no + slope_dir + skel_no + depth_no + alt_m + slope_deg, data = data_beech)
 summary(lm_site)  #Model using only site variables
 
 
