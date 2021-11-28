@@ -7,6 +7,8 @@ library(car)
 library(olsrr)
 load(file = "foresthealth.rda")
 
+# ---------- Data ----------
+
 # Basic pre-processing
 data <- dat
 summary(data)
@@ -17,6 +19,8 @@ data$id <- factor(data$id)
 data_beech <- filter(data, tree_sp_eu == "Rbu") # makes dataset for beech trees
 data_beech <- subset(data_beech, select = -c(H_spec, id, x_utm, y_utm, s_veg, prec_y, spei_12_oct, tree_sp_eu))
 data_beech <- na.omit(data_beech) # removing all the NA values
+
+# ---------- Model ---------- 
 
 # Model selection process
 full_mod <- lm(nbv_ratio ~ ., data = data_beech)
@@ -50,9 +54,36 @@ model_final <- rm_alt_m
 par(mfrow = c(2,2))
 plot(model_final)
 
+# ---------- Summary statistics ---------- #
 
+# Mean defoliation increase per year
+defo_rate <- data_beech %>%
+  arrange(year) %>%
+  group_by(year) %>%
+  summarize(defo = mean(nbv_ratio)) %>%
+  mutate(defo_change = defo - lag(defo)) %>%
+  na.omit
+mean(defo_rate$defo_change) # 0.5% average increase per year
 
+# Defoliation by category 1989
+defo_1989 <- data_beech %>%
+  filter(year == 1989) %>%
+  mutate(def_class = cut(nbv_ratio, breaks = c(0,0.1,.25,.6,.99,1))) %>%
+  subset(select = c(nbv_ratio, def_class)) %>% 
+  group_by(def_class) %>% 
+  count() 
+defo_1989 <- defo_1989 %>% mutate(freq = n/sum(defo_1989$n))
+defo_1989
 
+# Defoliation by category 2016
+defo_2016 <- data_beech %>%
+  filter(year == 2016) %>%
+  mutate(def_class = cut(nbv_ratio, breaks = c(0,0.1,.25,.6,.99,1))) %>%
+  subset(select = c(nbv_ratio, def_class)) %>% 
+  group_by(def_class) %>% 
+  count()
+defo_2016 <- defo_2016 %>% mutate(freq = n/sum(defo_2016$n))
+defo_2016
 
 
 
