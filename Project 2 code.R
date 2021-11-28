@@ -1,6 +1,9 @@
 # Loading in and organising the data
 library(dplyr)
 library(ggplot2)
+library(kableExtra)
+library(ggpubr)
+library(car)
 
 data <- dat
 summary(data)
@@ -11,11 +14,11 @@ data$id <- factor(data$id)
 #Omitting unnecessary data
 
 data_beech <- filter(data, tree_sp_eu == "Rbu") #makes dataset for beech trees
-data_beech <- subset(data_beech, select = -c(id, s_veg, tree_sp_eu, H_spec, year))
+data_beech <- subset(data_beech, select = -c(id, s_veg, tree_sp_eu, H_spec))
 data_beech <- na.omit(data_beech) #removing all the NA values
 
 data_spruce <- filter(data, tree_sp_eu == "Gfi") #makes dataset for spruce trees
-data_spruce <- subset(data_spruce, select = -c(id, s_veg, tree_sp_eu, H_spec, year))
+data_spruce <- subset(data_spruce, select = -c(id, s_veg, tree_sp_eu, H_spec))
 data_spruce <- na.omit(data_spruce)
 
 
@@ -84,23 +87,56 @@ summary(lm_site)  #Model using only site variables
 #Conclude that variables to remove: prec_y_lag1 or prec_y (keep the other lag variables), 24-month SPEI
 #Best model for now is step_mod8B
 
-base_model <- lm(nbv_ratio ~ . -prec_y -spei_12_oct, data = data_beech)
+base_model <- lm(nbv_ratio ~ . -prec_y -spei_12_oct -y_utm -x_utm , data = data_beech)
 step_model <- step(base_model, k = log(nrow(data_beech)), scope = list(lower = ~ tree_age))
 step_modelA <- step(base_model, scope = list(lower = ~ tree_age))
+final_model <- update(step_model, . ~ . +spei_24_oct -alt_m, data = data_beech)
 
-ggplot(data, aes(year, nbv_ratio)) + geom_point() + stat_smooth(method = "lm")
 
 anova(step_model, update(step_model, . ~ . - y_utm ))
+
+#Graphical summaries
+g1 <- ggplot(data_beech, aes(year, nbv_ratio)) + geom_point() + stat_smooth(method = "lm") + theme(axis.title = element_text(size = 16)) 
+
+#ggplot(data_beech, aes(year, globrad_y)) + geom_point()  + stat_smooth(method = "lm")
+
+#ggplot(data_beech, aes(year, prec_y_lag1)) + geom_point()  + stat_smooth(method = "lm")
+
+g2 <- ggplot(data_beech, aes(prec_y_lag1, nbv_ratio)) + geom_point() + stat_smooth(method = "lm") + theme(axis.title = element_text(size = 16)) 
+
+g3 <- ggplot(data_beech, aes(geol_no, nbv_ratio)) + geom_boxplot() + scale_x_discrete(guide = guide_axis(n.dodge = 2), labels = c('MCB','PGB','NRC', 'TrS', 'TCS', 'L', 'TeS', 'GFSLM', 'LL')) + theme(axis.title = element_text(size = 16)) 
+
+g4 <- ggplot(data_beech, aes(tree_age, nbv_ratio)) + geom_point()  + stat_smooth(method = "lm") + theme(axis.title = element_text(size = 16)) 
+
+#ggplot(data_beech, aes(spei_3_may, nbv_ratio)) + geom_point()  + stat_smooth(method = "lm") 
+
+#ggplot(data_beech, aes(alt_m, nbv_ratio)) + geom_point()  + stat_smooth(method = "lm")
+
+g5 <- ggplot(data_beech, aes(tmin_may, nbv_ratio)) + geom_point()  + stat_smooth(method = "lm") + theme(axis.title = element_text(size = 16)) 
+
+g6 <- ggplot(data_beech, aes(d_veg, nbv_ratio)) + geom_point()  + stat_smooth(method = "lm") + theme(axis.title = element_text(size = 16)) 
+g_plot <- ggarrange(g1, g4, g2, g5, g6, g3, ncol = 2, nrow = 3)
+g_plot
+
+#Confidence intervals
+lower <- summary(final_model)$coefficients[,1] - 1.96*summary(final_model)$coefficients[,2]
+upper <- summary(final_model)$coefficients[,1] + 1.96*summary(final_model)$coefficients[,2]
+mean <- summary(final_model)$coefficients[,1]
+CI <- cbind(lower, mean, upper)[-1,]
+ci_df <- data.frame(CI)
+knitr::kable(ci_df)
+
+
 
 
 
 
 #Checking model assumptions
 par(mfrow = c(2,2))
-plot(step_mod8B)
+plot(final_model)
 #Our model is right-skewed (positively skewed)
 
-ggplot(data_beech, aes(spei))
+
 
 
 
